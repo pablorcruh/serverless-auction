@@ -1,0 +1,18 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: pablorcruh
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: auction-service
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: auction-service
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+
+functions:
+  createAuction:
+    handler: src/handlers/createAuction.createAuction
+    events:
+      - httpApi:
+          path: /auction
+          method: post
