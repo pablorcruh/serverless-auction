@@ -8,6 +8,13 @@ service: auction-service
 provider:
   name: aws
   runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  environment:
+    AUCTION_TABLE_NAME: ${self:custom.AuctionTable.name}
+  iam:
+    role:
+      statements:
+        - ${file(iam/AuctionTableIAM.yml):AuctionTableIAM}
 
 functions:
   createAuction:
@@ -16,3 +23,13 @@ functions:
       - httpApi:
           path: /auction
           method: post
+
+custom:
+  AuctionTable:
+    name: !Ref AuctionTable
+    arn: !GetAtt AuctionTable.Arn
+
+resources:
+  Resources:
+    AuctionTable: ${file(resources/AuctionTable.yml):AuctionTable}
+      
