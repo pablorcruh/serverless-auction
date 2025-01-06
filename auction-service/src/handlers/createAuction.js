@@ -1,13 +1,18 @@
 const {v4} = require('uuid')
 const AWS = require('aws-sdk')
+const middy = require('@middy/core');
+const httpJsonBodyParser = require('@middy/http-json-body-parser');
+const httpEventNormalizer = require('@middy/http-event-normalizer');
+const httpErrorHandler = require('@middy/http-error-handler');
+const createError = require('http-errors')
 
-exports.createAuction = async (event) => {
-  const body = JSON.parse(event.body)
+const dynamodb = new AWS.DynamoDB.DocumentClient();
+
+const createAuction = async (event) => {
+  const body = event.body
   const title = body.title
   const now = new Date();
-  const dynamodb = new AWS.DynamoDB.DocumentClient();
-
-
+  
   const auction = {
     id: v4(),
     title,
@@ -15,12 +20,17 @@ exports.createAuction = async (event) => {
     createdAt: now.toISOString()
   }
 
-  await dynamodb.put(
-    {
-      TableName: process.env.AUCTION_TABLE_NAME,
-      Item: auction
-    }
-  ).promise()
+
+  try{
+    await dynamodb.put(
+      {
+        TableName: process.env.AUCTION_TABLE_NAME,
+        Item: auction
+      }
+    ).promise()
+  }catch(error){
+    throw new createError(500, error)
+  }
 
   return {
     statusCode: 201,
@@ -29,3 +39,9 @@ exports.createAuction = async (event) => {
     })
   };
 };
+
+
+exports.handler = middy(createAuction)
+.use(httpJsonBodyParser())
+.use(httpEventNormalizer())
+.use(httpErrorHandler());

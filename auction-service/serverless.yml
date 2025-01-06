@@ -18,11 +18,23 @@ provider:
 
 functions:
   createAuction:
-    handler: src/handlers/createAuction.createAuction
+    handler: src/handlers/createAuction.handler
     events:
       - httpApi:
           path: /auction
           method: post
+  getAuctions:
+    handler: src/handlers/getAuctions.handler
+    events:
+      - httpApi:
+          path: /auctions
+          method: get
+  getAuction:
+    handler: src/handlers/getAuction.getAuction
+    events:
+      - httpApi:
+          path: /auctions/{id}
+          method: get
 
 custom:
   AuctionTable:
