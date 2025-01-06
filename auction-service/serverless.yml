@@ -42,6 +42,12 @@ functions:
           path: /auctions/{id}/bid
           method: patch
 
+  processAuctions:
+    handler: src/handlers/processAuctions.handler
+    #events:
+    #  - eventBridge:
+    #      schedule: rate(10 minutes)
+
 custom:
   AuctionTable:
     name: !Ref AuctionTable
