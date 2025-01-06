@@ -30,11 +30,17 @@ functions:
           path: /auctions
           method: get
   getAuction:
-    handler: src/handlers/getAuction.getAuction
+    handler: src/handlers/getAuction.handler
     events:
       - httpApi:
           path: /auctions/{id}
           method: get
+  placeBid:
+    handler: src/handlers/placeBid.handler
+    events:
+      - httpApi:
+          path: /auctions/{id}/bid
+          method: patch
 
 custom:
   AuctionTable:

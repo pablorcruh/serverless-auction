@@ -8,12 +8,17 @@ const dynamodb = new AWS.DynamoDB.DocumentClient()
 
 const getAuctionById = async (id) => {
     let auction;
-    const result = await dynamodb.get({
-        TableName: process.env.AUCTION_TABLE_NAME,
-        Key: { id }
-    }).promise();
 
-    auction = result.Item;
+    try{
+        const result = await dynamodb.get({
+            TableName: process.env.AUCTION_TABLE_NAME,
+            Key: { id }
+        }).promise();
+    
+        auction = result.Item;
+    }catch(error){
+        throw new Error('Error retrieving auction');
+    }
 
     if(!auction){
         throw new Error(`Auction with ID ${id} not Found`);
@@ -26,7 +31,6 @@ const getAuction = async (event) => {
     const {id} = event.pathParameters;
     const auction = await getAuctionById(id);
    
-
     return {
         statusCode: 200,
         body: JSON.stringify(
@@ -39,9 +43,9 @@ const getAuction = async (event) => {
     };
 };
 
-module.exports.getAuctionById = getAuctionById;
+exports.getAuctionById = getAuctionById
 
-module.exports.getAuction = middy(getAuction)
+exports.handler = middy(getAuction)
 .use(httpJsonBodyParser())
 .use(httpEventNormalizer())
 .use(httpErrorHandler());
