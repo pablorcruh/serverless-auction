@@ -1,11 +1,18 @@
-const middy = require('@middy/core');
-const httpJsonBodyParser = require('@middy/http-json-body-parser');
-const httpEventNormalizer = require('@middy/http-event-normalizer');
-const httpErrorHandler = require('@middy/http-error-handler');
+const {getEndedAuctions} = require('../lib/getEndedAuctions')
+const {closeAuction} = require('../lib/closeAuction')
 
+const processAuctions = async() => {
+    try{
+        const auctionsToClose = await getEndedAuctions();
+        const closePromises = auctionsToClose.map(auction => closeAuction(auction))
+        await Promise.all(closePromises)
+        return {
+            closed: closePromises.length
+        }
+    }catch(error){
+        throw new Error(error);
+    }
 
-const processAuctions = async(event) => {
-    console.log('processing auctions')
 }
 
-exports.handler = processAuctions
+exports.processAuctions = processAuctions

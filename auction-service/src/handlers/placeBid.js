@@ -14,6 +14,10 @@ const placeBid = async(event) => {
 
     const auction = await getAuctionById(id)
 
+    if(auction.status != 'OPEN'){
+        throw new Error('Can not bid on closed auction')
+      }
+
     // bid amount validation
     if(amount <= auction.highestBid.amount){
         throw new Error('Please check the amount bid');

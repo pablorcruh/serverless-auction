@@ -9,7 +9,8 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 const getAuctions = async (event) => {
   const {status} = event.queryStringParameters;
-  let auctions
+ let auctions
+  let result
   try{
     const params = {
         TableName: process.env.AUCTION_TABLE_NAME,
@@ -22,9 +23,7 @@ const getAuctions = async (event) => {
           '#status': 'status'
       }
     };
-    const result = await dynamodb.query(params).promise();
-    auctions = result.Items;
-
+    result = await dynamodb.query(params).promise();
   }catch(error){
     throw new createError(500,error)
   }
