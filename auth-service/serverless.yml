@@ -1,0 +1,36 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: pablorcruh
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: auth-service
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  stage: ${opt:stage, 'dev'}
+  environment:
+    AUTH0_PUBLIC_KEY: ${file(secret.pem)}
+  httpApi:
+    cors: true
+    authorizers:
+      customAuthorizer:
+        type: request
+        functionName: custom-authorizer
+
+functions:
+  publicEndPoint:
+    handler: src/handlers/public.handler
+    events:
+      - httpApi:
+          path: /auth/public
+          method: post
+  privateEndpoint:
+    handler: src/handlers/private.handler
+    events:
+      - httpApi:
+          path: /auth/private
+          authorizer:
+            name: customAuthorizer
+          method: post
+
+  custom-authorizer:
+    handler: src/handlers/auth.handler
