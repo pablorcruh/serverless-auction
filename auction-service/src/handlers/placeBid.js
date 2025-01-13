@@ -5,7 +5,8 @@ const httpJsonBodyParser = require('@middy/http-json-body-parser');
 const httpEventNormalizer = require('@middy/http-event-normalizer');
 const httpErrorHandler = require('@middy/http-error-handler');
 const {getAuctionById} = require('./getAuction')
-
+const placeBidSchema = require('../lib/schemas/placeBidSchema');
+const { validate } = require('uuid');
 const dynamodb = new AWS.DynamoDB.DocumentClient()
 
 const placeBid = async(event) => {
@@ -58,4 +59,7 @@ const placeBid = async(event) => {
 exports.handler = middy(placeBid)
 .use(httpJsonBodyParser())
 .use(httpEventNormalizer())
-.use(httpErrorHandler());
+.use(httpErrorHandler())
+.use(validate({
+    inputSchema: placeBidSchema
+}));

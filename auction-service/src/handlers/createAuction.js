@@ -5,6 +5,8 @@ const httpJsonBodyParser = require('@middy/http-json-body-parser');
 const httpEventNormalizer = require('@middy/http-event-normalizer');
 const httpErrorHandler = require('@middy/http-error-handler');
 const createError = require('http-errors')
+const createAuctionSchema = require('../lib/schemas/createAuctionSchema')
+
 
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
@@ -50,4 +52,7 @@ const createAuction = async (event) => {
 exports.handler = middy(createAuction)
 .use(httpJsonBodyParser())
 .use(httpEventNormalizer())
-.use(httpErrorHandler());
+.use(httpErrorHandler())
+.use(validator({
+  inputSchema: createAuctionSchema
+}));
