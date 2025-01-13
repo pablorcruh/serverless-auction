@@ -15,6 +15,11 @@ provider:
     role:
       statements:
         - ${file(iam/AuctionTableIAM.yml):AuctionTableIAM}
+  httpApi:
+    authorizers:
+      customLambdaAuthorizer:
+        type: request
+        functionArn: ${self:custom.Authorizer.name}
 
 functions:
   createAuction:
@@ -23,24 +28,32 @@ functions:
       - httpApi:
           path: /auction
           method: post
+          authorizer:
+            name: customLambdaAuthorizer
   getAuctions:
     handler: src/handlers/getAuctions.handler
     events:
       - httpApi:
           path: /auctions
           method: get
+          authorizer:
+            name: customLambdaAuthorizer
   getAuction:
     handler: src/handlers/getAuction.handler
     events:
       - httpApi:
           path: /auctions/{id}
           method: get
+          authorizer:
+            name: customLambdaAuthorizer
   placeBid:
     handler: src/handlers/placeBid.handler
     events:
       - httpApi:
           path: /auctions/{id}/bid
           method: patch
+          authorizer:
+            name: customLambdaAuthorizer
 
   processAuctions:
     handler: src/handlers/processAuctions.processAuctions

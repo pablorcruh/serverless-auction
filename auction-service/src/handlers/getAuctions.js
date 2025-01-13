@@ -4,7 +4,9 @@ const httpJsonBodyParser = require('@middy/http-json-body-parser');
 const httpEventNormalizer = require('@middy/http-event-normalizer');
 const httpErrorHandler = require('@middy/http-error-handler');
 const createError = require('http-errors')
-const validator = require('@middy/validator');
+const validatorMiddleware = require('@middy/validator');
+const {transpileSchema} = require('@middy/validator/transpile')
+
 const getAuctionSchema = require('../lib/schemas/getAuctionsSchema');
 
 
@@ -44,7 +46,6 @@ exports.handler = middy(getAuctions)
 .use(httpJsonBodyParser())
 .use(httpEventNormalizer())
 .use(httpErrorHandler())
-.use(validator({
-  inputSchema: getAuctionSchema,
-  useDefaults: true
-}))
+.use(validatorMiddleware({
+  eventSchema: transpileSchema(getAuctionSchema)
+}));

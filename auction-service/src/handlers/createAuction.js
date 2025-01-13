@@ -4,6 +4,9 @@ const middy = require('@middy/core');
 const httpJsonBodyParser = require('@middy/http-json-body-parser');
 const httpEventNormalizer = require('@middy/http-event-normalizer');
 const httpErrorHandler = require('@middy/http-error-handler');
+const validatorMiddleware = require('@middy/validator');
+const {transpileSchema} = require('@middy/validator/transpile')
+
 const createError = require('http-errors')
 const createAuctionSchema = require('../lib/schemas/createAuctionSchema')
 
@@ -11,6 +14,7 @@ const createAuctionSchema = require('../lib/schemas/createAuctionSchema')
 const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 const createAuction = async (event) => {
+  const {email} = event.requestContext.authorizer.lambda;
   const body = event.body
   const title = body.title
   const now = new Date();
@@ -26,6 +30,7 @@ const createAuction = async (event) => {
     highestBid: {
       amount: 0
     },
+    seller: email
   }
 
 
@@ -53,6 +58,6 @@ exports.handler = middy(createAuction)
 .use(httpJsonBodyParser())
 .use(httpEventNormalizer())
 .use(httpErrorHandler())
-.use(validator({
-  inputSchema: createAuctionSchema
+.use(validatorMiddleware({
+  eventSchema: transpileSchema(createAuctionSchema)
 }));
