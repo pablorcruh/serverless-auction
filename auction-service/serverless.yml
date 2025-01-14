@@ -11,10 +11,12 @@ provider:
   stage: ${opt:stage, 'dev'}
   environment:
     AUCTION_TABLE_NAME: ${self:custom.AuctionTable.name}
+    MAIL_QUEUE_URL: ${self:custom.MailQueue.url}
   iam:
     role:
       statements:
         - ${file(iam/AuctionTableIAM.yml):AuctionTableIAM}
+        - ${file(./iam/MailQueueIAM.yml):MailQueueIAM}
   httpApi:
     authorizers:
       customLambdaAuthorizer:
@@ -57,16 +59,19 @@ functions:
 
   processAuctions:
     handler: src/handlers/processAuctions.processAuctions
-    #events:
-    #  - eventBridge:
-    #      schedule: rate(10 minutes)
+    events:
+      - eventBridge:
+          schedule: rate(5 minutes)
 
 custom:
+  Authorizer:
+    name: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:auth-service-${self:provider.stage}-custom-authorizer'
   AuctionTable:
     name: !Ref AuctionTable
     arn: !GetAtt AuctionTable.Arn
-  Authorizer:
-    name: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:auth-service-${self:provider.stage}-custom-authorizer'
+  MailQueue:
+   arn: ${cf:notification-service-${self:provider.stage}.MailQueueArn}
+   url: ${cf:notification-service-${self:provider.stage}.MailQueueUrl}
 
 
 resources:

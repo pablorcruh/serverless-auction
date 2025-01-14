@@ -1,5 +1,7 @@
-auction-service/node_modules
 .serverless
+auction-service/node_modules
 auction-service/.serverless
 auth-service/.serverless
 auth-service/node_modules
+notification-service/.serverless
+notification-service/node_modules
